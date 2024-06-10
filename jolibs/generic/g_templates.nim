@@ -3,7 +3,7 @@ import std/[times, strutils]
 var versionfl: float = 0.11
 
 
-var wispbo = true
+var wispbo* = true
 
 
 
@@ -24,6 +24,29 @@ template wisp_old*(wordsq: varargs[string, `$`]) =
       procnamest = $tob[tob.len - 1].procname
       echo "==>  ", modulest, "_", procnamest, "  echos: ",  wordsq
 
+
+
+template getTrace*(wordsq: varargs[string, `$`]) =
+  # works only for non-release-compilation; thats ok
+  var
+    filepathst, filenamest, modulest, procnamest: string
+    pathsq: seq[string]
+    lineit: int
+
+  if wispbo:
+    let tob = getStackTraceEntries()      # a proc from the system-module
+
+    if tob.len > 0:       # needed for release-compilation
+      for itemob in tob:
+        echo "counting ", tob.len, " ", type(itemob)
+        #echo itemob
+
+        filepathst = $itemob.filename
+        pathsq = filepathst.split("/")
+        filenamest = pathsq[pathsq.len - 1]
+        procnamest = $itemob.procname
+        lineit = itemob.line
+        echo filenamest.alignLeft(25) & ($lineit).alignLeft(10) & procnamest.alignLeft(25)
 
 
 
